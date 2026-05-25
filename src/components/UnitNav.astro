@@ -1,0 +1,29 @@
+---
+interface NavItem { unit: number; title: string; slug: string }
+interface Props {
+  prev?: NavItem;
+  next?: NavItem;
+}
+const { prev, next } = Astro.props;
+---
+<nav class="mt-12 grid gap-3 sm:grid-cols-2">
+  {prev ? (
+    <a
+      href={`/unidades/${prev.slug}`}
+      class="group rounded-2xl border border-cream-200 bg-white p-4 no-underline transition hover:border-terracotta-100 hover:bg-terracotta-50/40"
+    >
+      <span class="section-eyebrow">← Unidad {prev.unit}</span>
+      <p class="mt-1 font-display text-lg font-semibold text-ink-900 group-hover:text-terracotta-700">{prev.title}</p>
+    </a>
+  ) : <span></span>}
+
+  {next ? (
+    <a
+      href={`/unidades/${next.slug}`}
+      class="group rounded-2xl border border-cream-200 bg-white p-4 text-right no-underline transition hover:border-terracotta-100 hover:bg-terracotta-50/40 sm:text-right"
+    >
+      <span class="section-eyebrow">Unidad {next.unit} →</span>
+      <p class="mt-1 font-display text-lg font-semibold text-ink-900 group-hover:text-terracotta-700">{next.title}</p>
+    </a>
+  ) : <span></span>}
+</nav>

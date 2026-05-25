@@ -1,0 +1,39 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+interface Props {
+  yaSabes: string[];
+  tocaPracticar: string[];
+}
+const { yaSabes, tocaPracticar } = Astro.props;
+---
+<section class="section-card">
+  <SectionHeading step={9} eyebrow="Cierre" title="Dónde estás al final de la unidad" />
+
+  <div class="grid gap-5 sm:grid-cols-2">
+    <div class="rounded-2xl bg-cream-100 p-4">
+      <p class="section-eyebrow">Lo que ya sabes</p>
+      <ul class="mt-3 space-y-2">
+        {yaSabes.map((item) => (
+          <li class="flex gap-2 text-ink-900">
+            <span aria-hidden="true" class="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-olive-500"></span>
+            <span>{item}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    {tocaPracticar.length > 0 && (
+      <div class="rounded-2xl bg-terracotta-50/70 p-4">
+        <p class="section-eyebrow">Lo que toca practicar</p>
+        <ul class="mt-3 space-y-2">
+          {tocaPracticar.map((item) => (
+            <li class="flex gap-2 text-ink-900">
+              <span aria-hidden="true" class="mt-1 inline-block h-2 w-2 shrink-0 rounded-full bg-terracotta-400"></span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </div>
+</section>

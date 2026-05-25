@@ -1,0 +1,31 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    @apply bg-cream-50 text-ink-900 antialiased;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+  body {
+    @apply min-h-screen;
+  }
+  h1, h2, h3, h4 {
+    @apply font-display tracking-tight;
+  }
+  a {
+    @apply text-terracotta-600 underline-offset-4 hover:underline;
+  }
+}
+
+@layer components {
+  .section-card {
+    @apply rounded-2xl bg-white p-5 shadow-warm ring-1 ring-cream-200 sm:p-7;
+  }
+  .pill {
+    @apply inline-flex items-center gap-1 rounded-full bg-terracotta-50 px-3 py-1 text-xs font-medium uppercase tracking-wider text-terracotta-700;
+  }
+  .section-eyebrow {
+    @apply text-xs font-semibold uppercase tracking-[0.18em] text-terracotta-600;
+  }
+}

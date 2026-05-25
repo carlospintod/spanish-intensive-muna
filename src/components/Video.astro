@@ -1,0 +1,67 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface VideoItem { titulo: string; canal?: string; url: string; duracion?: string }
+interface Props {
+  anchor: VideoItem;
+  stretch?: VideoItem;
+}
+const { anchor, stretch } = Astro.props;
+
+function youtubeEmbedUrl(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname === "youtu.be") return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    if (u.hostname.endsWith("youtube.com")) {
+      const id = u.searchParams.get("v");
+      if (id) return `https://www.youtube.com/embed/${id}`;
+      if (u.pathname.startsWith("/embed/")) return url;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+const embed = youtubeEmbedUrl(anchor.url);
+---
+<section class="section-card">
+  <SectionHeading step={6} eyebrow="Vídeo" title="El vídeo de esta unidad" />
+
+  <div class="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+    <span class="font-display text-lg font-semibold text-ink-900">{anchor.titulo}</span>
+    {anchor.canal && <span class="text-sm text-ink-500">{anchor.canal}</span>}
+    {anchor.duracion && <span class="text-sm text-ink-500">· {anchor.duracion}</span>}
+  </div>
+
+  {embed ? (
+    <div class="aspect-video overflow-hidden rounded-2xl ring-1 ring-cream-200">
+      <iframe
+        src={embed}
+        title={anchor.titulo}
+        loading="lazy"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allowfullscreen
+        class="h-full w-full"
+      ></iframe>
+    </div>
+  ) : (
+    <a
+      href={anchor.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      class="inline-flex items-center gap-2 rounded-lg bg-terracotta-500 px-4 py-2 font-medium text-white no-underline hover:bg-terracotta-600"
+    >
+      Abrir el vídeo →
+    </a>
+  )}
+
+  {stretch && (
+    <div class="mt-5 rounded-xl border border-cream-200 bg-cream-100 px-4 py-3 text-sm text-ink-700">
+      <span class="font-semibold text-ink-900">¿Quieres más?</span>{" "}
+      <a href={stretch.url} target="_blank" rel="noopener noreferrer">{stretch.titulo}</a>
+      {stretch.canal && <span class="text-ink-500"> ({stretch.canal})</span>}
+      {stretch.duracion && <span class="text-ink-500"> · {stretch.duracion}</span>}
+    </div>
+  )}
+</section>

@@ -1,0 +1,16 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+interface Props { nivel: "A1" | "A2" }
+const { nivel } = Astro.props;
+---
+<section class="section-card border-dashed">
+  <SectionHeading step={7} eyebrow="Práctica" title="Chat de práctica (próximamente)" />
+  <p class="text-ink-900 leading-relaxed">
+    Aquí vivirá un chat con Claude que solo habla en español de España, a nivel <span class="pill">{nivel}</span>,
+    centrado en el vocabulario y la gramática de esta unidad. Te corregirá con cariño y solo cambiará a inglés
+    si tú lo pides.
+  </p>
+  <p class="mt-3 text-sm text-ink-500">
+    Esta función se activa en la Fase 3, cuando montemos el proxy serverless con la clave de la API.
+  </p>
+</section>

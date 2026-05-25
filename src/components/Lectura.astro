@@ -1,0 +1,113 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface GlosarioItem { termino: string; gloss: string }
+interface Pregunta { pregunta: string; opciones: string[]; correcta: number }
+interface Props {
+  texto: string;
+  glosario: GlosarioItem[];
+  preguntas: Pregunta[];
+}
+const { texto, glosario, preguntas } = Astro.props;
+
+const lineas = texto.split(/\n/).map((l) => l.trim()).filter(Boolean);
+---
+<section class="section-card">
+  <SectionHeading step={5} eyebrow="Lectura" title="Una lectura corta, por encima" />
+
+  <p class="mb-4 text-sm text-ink-500">Léelo para el sentido general — no hace falta entender cada palabra.</p>
+
+  <div class="rounded-2xl bg-cream-100 px-5 py-5 leading-relaxed text-ink-900 sm:px-6">
+    {lineas.map((linea) => <p class="mb-2 last:mb-0">{linea}</p>)}
+  </div>
+
+  {glosario.length > 0 && (
+    <details class="mt-4 rounded-xl border border-cream-200 bg-white px-4 py-3 open:pb-4">
+      <summary class="cursor-pointer text-sm font-medium text-terracotta-600">
+        Glosario (toca para abrir)
+      </summary>
+      <ul class="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+        {glosario.map((g) => (
+          <li class="text-sm text-ink-700">
+            <span class="font-semibold text-ink-900">{g.termino}</span> — {g.gloss}
+          </li>
+        ))}
+      </ul>
+    </details>
+  )}
+
+  {preguntas.length > 0 && (
+    <div class="mt-6">
+      <p class="section-eyebrow">Mini comprobación</p>
+      <ol class="mt-3 space-y-5">
+        {preguntas.map((q, qi) => (
+          <li class="rounded-xl border border-cream-200 bg-white p-4">
+            <p class="mb-3 font-medium text-ink-900">{q.pregunta}</p>
+            <div class="grid gap-2" data-quiz-question={qi}>
+              {q.opciones.map((opt, oi) => (
+                <button
+                  type="button"
+                  data-quiz-option
+                  data-correct={oi === q.correcta ? "true" : "false"}
+                  class="quiz-opt rounded-lg border border-cream-200 px-4 py-2 text-left text-ink-900 hover:bg-cream-100"
+                >
+                  {opt}
+                </button>
+              ))}
+            </div>
+            <p data-quiz-feedback class="mt-3 hidden text-sm font-medium"></p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  )}
+</section>
+
+<style>
+  .quiz-opt[data-state="correct"] {
+    background-color: #E6F0DC;
+    border-color: #7A8450;
+    color: #3C2B2A;
+  }
+  .quiz-opt[data-state="wrong"] {
+    background-color: #FBEDE6;
+    border-color: #D77A52;
+    color: #7E2B1A;
+  }
+  .quiz-opt[disabled] {
+    cursor: default;
+  }
+</style>
+
+<script>
+  function initQuiz() {
+    document.querySelectorAll<HTMLElement>("[data-quiz-question]").forEach((group) => {
+      if (group.dataset.bound) return;
+      group.dataset.bound = "true";
+      const buttons = group.querySelectorAll<HTMLButtonElement>("[data-quiz-option]");
+      const feedback = group.parentElement?.querySelector<HTMLElement>("[data-quiz-feedback]");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const correct = btn.dataset.correct === "true";
+          buttons.forEach((b) => {
+            b.disabled = true;
+            if (b.dataset.correct === "true") b.dataset.state = "correct";
+            else if (b === btn) b.dataset.state = "wrong";
+          });
+          if (feedback) {
+            feedback.classList.remove("hidden");
+            if (correct) {
+              feedback.textContent = "¡Bien! ✨";
+              feedback.style.color = "#5F6840";
+            } else {
+              feedback.textContent = "Casi — fíjate en la opción verde.";
+              feedback.style.color = "#A93A23";
+            }
+          }
+        });
+      });
+    });
+  }
+  initQuiz();
+  document.addEventListener("astro:page-load", initQuiz);
+</script>

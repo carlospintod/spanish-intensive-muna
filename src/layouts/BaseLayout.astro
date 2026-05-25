@@ -1,0 +1,52 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title: string;
+  description?: string;
+}
+
+const { title, description = "Un curso pequeño de español castellano, hecho para Muna." } = Astro.props;
+const siteTitle = "Spanish for Muna";
+const fullTitle = title === siteTitle ? title : `${title} · ${siteTitle}`;
+---
+
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap"
+    />
+  </head>
+  <body class="bg-cream-50 text-ink-900">
+    <header class="border-b border-cream-200 bg-cream-50/80 backdrop-blur">
+      <div class="mx-auto flex max-w-5xl items-center justify-between px-5 py-4 sm:px-8">
+        <a href="/" class="font-display text-lg font-semibold text-ink-900 no-underline hover:text-terracotta-600">
+          Spanish for Muna
+        </a>
+        <nav class="flex items-center gap-4 text-sm sm:gap-6">
+          <a href="/unidades" class="font-medium text-ink-700 no-underline hover:text-terracotta-600">Unidades</a>
+          <a href="/como-funciona" class="font-medium text-ink-700 no-underline hover:text-terracotta-600">Cómo funciona</a>
+          <a href="/faq" class="font-medium text-ink-700 no-underline hover:text-terracotta-600">FAQ</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-5xl px-5 pb-20 pt-8 sm:px-8">
+      <slot />
+    </main>
+
+    <footer class="border-t border-cream-200 bg-cream-100">
+      <div class="mx-auto max-w-5xl px-5 py-8 text-sm text-ink-500 sm:px-8">
+        <p>Hecho con cariño, para Muna. 💛</p>
+      </div>
+    </footer>
+  </body>
+</html>

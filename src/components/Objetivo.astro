@@ -1,0 +1,9 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+interface Props { objetivo: string }
+const { objetivo } = Astro.props;
+---
+<section class="section-card">
+  <SectionHeading step={1} eyebrow="Objetivo" title="Lo que vas a poder hacer" />
+  <p class="text-lg leading-relaxed text-ink-900">{objetivo}</p>
+</section>

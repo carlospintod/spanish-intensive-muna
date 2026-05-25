@@ -1,0 +1,53 @@
+---
+import type { CollectionEntry } from "astro:content";
+
+import BaseLayout from "./BaseLayout.astro";
+import ParaTi from "../components/ParaTi.astro";
+import Objetivo from "../components/Objetivo.astro";
+import Vocabulario from "../components/Vocabulario.astro";
+import Gramatica from "../components/Gramatica.astro";
+import Dialogos from "../components/Dialogos.astro";
+import Lectura from "../components/Lectura.astro";
+import Video from "../components/Video.astro";
+import PracticaPlaceholder from "../components/PracticaPlaceholder.astro";
+import Misiones from "../components/Misiones.astro";
+import Cierre from "../components/Cierre.astro";
+import Enlaces from "../components/Enlaces.astro";
+import UnitNav from "../components/UnitNav.astro";
+
+interface NavItem { unit: number; title: string; slug: string }
+
+interface Props {
+  unit: CollectionEntry<"units">;
+  prev?: NavItem;
+  next?: NavItem;
+}
+const { unit, prev, next } = Astro.props;
+const d = unit.data;
+---
+<BaseLayout title={`Unidad ${d.unit} · ${d.title}`} description={d.objetivo}>
+  <div class="mb-6">
+    <a href="/unidades" class="text-sm text-ink-500 no-underline hover:text-terracotta-600">← Todas las unidades</a>
+    <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
+      <span class="pill">Unidad {d.unit}{d.abuelaCheckpoint && " · ★ Abuela"}</span>
+    </div>
+    <h1 class="mt-3 font-display text-4xl font-semibold text-ink-900 sm:text-5xl">{d.title}</h1>
+  </div>
+
+  {d.paraTi && <ParaTi text={d.paraTi} />}
+
+  <div class="space-y-6">
+    <Objetivo objetivo={d.objetivo} />
+    <Vocabulario items={d.vocabulario} />
+    <Gramatica titulo={d.grammar.titulo} intro={d.grammar.intro} ejemplos={d.grammar.ejemplos} />
+    <Dialogos dialogos={d.dialogos} />
+    <Lectura texto={d.lectura.texto} glosario={d.lectura.glosario} preguntas={d.lectura.preguntas} />
+    <Video anchor={d.video.anchor} stretch={d.video.stretch} />
+    <PracticaPlaceholder nivel={d.practica.nivel} />
+    <Misiones unit={d.unit} misiones={d.misiones} />
+    <Cierre yaSabes={d.cierre.yaSabes} tocaPracticar={d.cierre.tocaPracticar} />
+    <Enlaces recomendados={d.enlaces.recomendados} directorio={d.enlaces.directorio} />
+  </div>
+
+  <UnitNav prev={prev} next={next} />
+</BaseLayout>

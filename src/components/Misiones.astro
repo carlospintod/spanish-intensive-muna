@@ -1,0 +1,60 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  unit: number;
+  misiones: { real: string; casa: string; reto: string };
+}
+const { unit, misiones } = Astro.props;
+
+const tiers = [
+  { key: "real", label: "Misión real", subtitle: "Ahí fuera, en el mundo", text: misiones.real, tone: "bg-terracotta-50 border-terracotta-100" },
+  { key: "casa", label: "Misión en casa", subtitle: "Tranquila, con Carlos", text: misiones.casa, tone: "bg-cream-100 border-cream-200" },
+  { key: "reto", label: "Reto opcional", subtitle: "Si te apetece divertirte", text: misiones.reto, tone: "bg-white border-cream-200" },
+] as const;
+---
+<section class="section-card">
+  <SectionHeading step={8} eyebrow="Misiones" title="Algo para hacer esta semana" />
+  <p class="mb-4 text-sm text-ink-500">
+    Tres versiones, de más a menos: si una te queda grande, baja a la siguiente. No hay fechas ni rachas.
+  </p>
+
+  <div class="grid gap-3 sm:grid-cols-3">
+    {tiers.map((t) => (
+      <div class={`rounded-2xl border p-4 ${t.tone}`}>
+        <p class="section-eyebrow">{t.label}</p>
+        <p class="mt-0.5 text-xs italic text-ink-500">{t.subtitle}</p>
+        <p class="mt-2 text-ink-900 leading-relaxed">{t.text}</p>
+        <label class="mission-toggle mt-3 inline-flex items-center gap-2 text-sm text-ink-700">
+          <input
+            type="checkbox"
+            class="mission-check h-4 w-4 rounded border-cream-200 text-terracotta-500 focus:ring-terracotta-400"
+            data-mission-key={`unit-${unit}-mision-${t.key}`}
+          />
+          ¡Hecho!
+        </label>
+      </div>
+    ))}
+  </div>
+  <p class="mt-3 text-xs text-ink-500">Las marcas se guardan solo en tu dispositivo.</p>
+</section>
+
+<script>
+  function initMissions() {
+    document.querySelectorAll<HTMLInputElement>(".mission-check").forEach((cb) => {
+      if (cb.dataset.bound) return;
+      cb.dataset.bound = "true";
+      const key = cb.dataset.missionKey!;
+      try {
+        cb.checked = localStorage.getItem(key) === "1";
+      } catch {}
+      cb.addEventListener("change", () => {
+        try {
+          localStorage.setItem(key, cb.checked ? "1" : "0");
+        } catch {}
+      });
+    });
+  }
+  initMissions();
+  document.addEventListener("astro:page-load", initMissions);
+</script>

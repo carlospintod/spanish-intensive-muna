@@ -1,0 +1,21 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface Props {
+  titulo: string;
+  intro?: string;
+  ejemplos: string[];
+}
+const { titulo, intro, ejemplos } = Astro.props;
+---
+<section class="section-card">
+  <SectionHeading step={3} eyebrow="Gramática" title={titulo} />
+  {intro && <p class="mb-4 text-base leading-relaxed text-ink-900">{intro}</p>}
+  <ul class="space-y-3">
+    {ejemplos.map((ex) => (
+      <li class="rounded-xl bg-cream-100 px-4 py-3 text-ink-900 leading-relaxed">
+        {ex}
+      </li>
+    ))}
+  </ul>
+</section>

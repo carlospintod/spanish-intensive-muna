@@ -1,0 +1,23 @@
+---
+import { getCollection } from "astro:content";
+import UnitLayout from "../../layouts/UnitLayout.astro";
+
+export async function getStaticPaths() {
+  const all = (await getCollection("units")).sort((a, b) => a.data.unit - b.data.unit);
+  return all.map((entry, idx) => {
+    const prev = all[idx - 1];
+    const next = all[idx + 1];
+    return {
+      params: { slug: entry.slug },
+      props: {
+        unit: entry,
+        prev: prev ? { unit: prev.data.unit, title: prev.data.title, slug: prev.slug } : undefined,
+        next: next ? { unit: next.data.unit, title: next.data.title, slug: next.slug } : undefined,
+      },
+    };
+  });
+}
+
+const { unit, prev, next } = Astro.props;
+---
+<UnitLayout unit={unit} prev={prev} next={next} />
