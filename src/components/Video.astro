@@ -26,7 +26,8 @@ function youtubeEmbedUrl(url: string): string | null {
 const embed = youtubeEmbedUrl(anchor.url);
 ---
 <section class="section-card">
-  <SectionHeading step={6} eyebrow="Vídeo" title="El vídeo de esta unidad" />
+  <SectionHeading eyebrow="Vídeo" title="Today's video" />
+  <p class="mb-4 text-sm text-ink-500">Watch once for the gist. Twice if you can — the second time you'll catch more.</p>
 
   <div class="mb-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
     <span class="font-display text-lg font-semibold text-ink-900">{anchor.titulo}</span>
@@ -52,13 +53,13 @@ const embed = youtubeEmbedUrl(anchor.url);
       rel="noopener noreferrer"
       class="inline-flex items-center gap-2 rounded-lg bg-terracotta-500 px-4 py-2 font-medium text-white no-underline hover:bg-terracotta-600"
     >
-      Abrir el vídeo →
+      Open the video →
     </a>
   )}
 
   {stretch && (
     <div class="mt-5 rounded-xl border border-cream-200 bg-cream-100 px-4 py-3 text-sm text-ink-700">
-      <span class="font-semibold text-ink-900">¿Quieres más?</span>{" "}
+      <span class="font-semibold text-ink-900">Want more?</span>{" "}
       <a href={stretch.url} target="_blank" rel="noopener noreferrer">{stretch.titulo}</a>
       {stretch.canal && <span class="text-ink-500"> ({stretch.canal})</span>}
       {stretch.duracion && <span class="text-ink-500"> · {stretch.duracion}</span>}

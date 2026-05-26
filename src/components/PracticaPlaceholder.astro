@@ -4,13 +4,12 @@ interface Props { nivel: "A1" | "A2" }
 const { nivel } = Astro.props;
 ---
 <section class="section-card border-dashed">
-  <SectionHeading step={7} eyebrow="Práctica" title="Chat de práctica (próximamente)" />
+  <SectionHeading eyebrow="Práctica" title="Practice chat (coming soon)" />
   <p class="text-ink-900 leading-relaxed">
-    Aquí vivirá un chat con Claude que solo habla en español de España, a nivel <span class="pill">{nivel}</span>,
-    centrado en el vocabulario y la gramática de esta unidad. Te corregirá con cariño y solo cambiará a inglés
-    si tú lo pides.
+    A Claude-powered chat will live here. Castilian Spanish only, level <span class="pill">{nivel}</span>,
+    scoped to this unit's vocab and grammar. It corrects gently and only switches to English if you ask.
   </p>
   <p class="mt-3 text-sm text-ink-500">
-    Esta función se activa en la Fase 3, cuando montemos el proxy serverless con la clave de la API.
+    Ships in Phase 3, once the serverless proxy holds the API key.
   </p>
 </section>

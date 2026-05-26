@@ -1,0 +1,47 @@
+---
+interface Props {
+  text: string;
+  audio?: string;
+  label?: string;
+  size?: "sm" | "md";
+  withLabel?: string;
+  class?: string;
+}
+const {
+  text,
+  audio,
+  label = "Play audio",
+  size = "sm",
+  withLabel,
+  class: extraClass = "",
+} = Astro.props;
+
+const dimension = size === "sm" ? "h-8 w-8" : "h-11 w-11";
+const icon = size === "sm" ? "h-4 w-4" : "h-5 w-5";
+---
+{withLabel ? (
+  <button
+    type="button"
+    class={`speak-btn inline-flex items-center gap-2 rounded-full bg-terracotta-50 px-4 py-2 text-sm font-medium text-terracotta-700 hover:bg-terracotta-100 active:scale-95 transition ${extraClass}`}
+    data-text={text}
+    data-audio={audio ?? ""}
+    aria-label={label}
+  >
+    <svg viewBox="0 0 24 24" fill="currentColor" class="h-4 w-4" aria-hidden="true">
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zm-2.5 7.94c3.39-.49 6-3.39 6-6.94s-2.61-6.45-6-6.94v2.02c2.28.46 4 2.48 4 4.92s-1.72 4.46-4 4.92v2.02z"/>
+    </svg>
+    {withLabel}
+  </button>
+) : (
+  <button
+    type="button"
+    class={`speak-btn inline-flex shrink-0 items-center justify-center rounded-full text-terracotta-600 hover:bg-terracotta-50 active:scale-95 transition ${dimension} ${extraClass}`}
+    data-text={text}
+    data-audio={audio ?? ""}
+    aria-label={label}
+  >
+    <svg viewBox="0 0 24 24" fill="currentColor" class={icon} aria-hidden="true">
+      <path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3a4.5 4.5 0 0 0-2.5-4.03v8.05A4.5 4.5 0 0 0 16.5 12zm-2.5 7.94c3.39-.49 6-3.39 6-6.94s-2.61-6.45-6-6.94v2.02c2.28.46 4 2.48 4 4.92s-1.72 4.46-4 4.92v2.02z"/>
+    </svg>
+  </button>
+)}

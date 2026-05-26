@@ -1,9 +1,11 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
-interface Props { objetivo: string }
-const { objetivo } = Astro.props;
+import Translatable from "./Translatable.astro";
+
+interface Props { objetivo: string; objetivoEn?: string }
+const { objetivo, objetivoEn } = Astro.props;
 ---
 <section class="section-card">
-  <SectionHeading step={1} eyebrow="Objetivo" title="Lo que vas a poder hacer" />
-  <p class="text-lg leading-relaxed text-ink-900">{objetivo}</p>
+  <SectionHeading eyebrow="Objetivo" title="What you'll be able to do" />
+  <Translatable es={objetivo} en={objetivoEn} variant="default" className="text-lg" />
 </section>

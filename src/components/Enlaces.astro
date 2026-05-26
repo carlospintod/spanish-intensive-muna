@@ -9,11 +9,11 @@ interface Props {
 const { recomendados, directorio } = Astro.props;
 ---
 <section class="section-card">
-  <SectionHeading step={10} eyebrow="Directorio / enlaces" title="Si quieres más" />
+  <SectionHeading eyebrow="Enlaces" title="If you want more" />
 
   {recomendados.length > 0 && (
     <div class="mb-5">
-      <p class="section-eyebrow">Recomendados</p>
+      <p class="section-eyebrow">Recommended</p>
       <ul class="mt-2 space-y-3">
         {recomendados.map((r) => (
           <li class="rounded-xl border border-terracotta-100 bg-terracotta-50/60 p-4">
@@ -29,7 +29,7 @@ const { recomendados, directorio } = Astro.props;
 
   {directorio.length > 0 && (
     <details class="rounded-xl bg-cream-100 px-4 py-3 open:pb-4">
-      <summary class="cursor-pointer text-sm font-medium text-ink-700">Más cosas, por si te apetece curiosear</summary>
+      <summary class="cursor-pointer text-sm font-medium text-ink-700">More to explore (tap to open)</summary>
       <ul class="mt-3 space-y-2">
         {directorio.map((d) => (
           <li>

@@ -1,0 +1,78 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+import SpeakButton from "./SpeakButton.astro";
+
+interface Linea { hablante: string; texto: string; gloss?: string; audio?: string }
+interface Contexto { es: string; en?: string }
+interface Dialogo { titulo: string; contexto?: Contexto; lineas: Linea[] }
+interface Props {
+  dialogos: Dialogo[];
+  hiddenHablante?: string;
+}
+const { dialogos, hiddenHablante = "Muna" } = Astro.props;
+---
+<section class="section-card">
+  <SectionHeading eyebrow="Completa el diálogo" title="Your turn in the conversation" />
+  <p class="mb-5 text-sm text-ink-500">
+    Try saying your line out loud first. Then tap to reveal and hear the model.
+  </p>
+
+  <div class="space-y-7">
+    {dialogos.map((d) => (
+      <article>
+        <h3 class="font-display text-lg font-semibold text-ink-900">{d.titulo}</h3>
+        <ol class="mt-3 space-y-2">
+          {d.lineas.map((line) => {
+            const hidden = line.hablante === hiddenHablante;
+            return (
+              <li class="flex gap-3 rounded-xl bg-cream-100 px-4 py-3">
+                <span class="shrink-0 font-semibold text-terracotta-600">{line.hablante}:</span>
+                {hidden ? (
+                  <div class="reveal-line flex-1" data-line={line.texto}>
+                    <button
+                      type="button"
+                      class="reveal-trigger w-full rounded-lg border border-dashed border-terracotta-400 px-3 py-2 text-left text-sm italic text-terracotta-600 hover:bg-terracotta-50"
+                    >
+                      Your turn — say it, then tap to reveal
+                    </button>
+                    <div class="reveal-content hidden">
+                      <div class="flex items-center gap-2">
+                        <span class="text-ink-900">{line.texto}</span>
+                        <SpeakButton text={line.texto} audio={line.audio} size="sm" label={`Play: ${line.texto}`} />
+                      </div>
+                      {line.gloss && (
+                        <p class="mt-1 text-xs italic text-ink-500">{line.gloss}</p>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div class="flex flex-1 items-center gap-2">
+                    <span class="text-ink-900">{line.texto}</span>
+                    <SpeakButton text={line.texto} audio={line.audio} size="sm" label={`Play: ${line.texto}`} />
+                  </div>
+                )}
+              </li>
+            );
+          })}
+        </ol>
+      </article>
+    ))}
+  </div>
+</section>
+
+<script>
+  function initReveal() {
+    document.querySelectorAll<HTMLElement>(".reveal-line").forEach((el) => {
+      if (el.dataset.bound) return;
+      el.dataset.bound = "true";
+      const trigger = el.querySelector<HTMLButtonElement>(".reveal-trigger")!;
+      const content = el.querySelector<HTMLElement>(".reveal-content")!;
+      trigger.addEventListener("click", () => {
+        trigger.classList.add("hidden");
+        content.classList.remove("hidden");
+      });
+    });
+  }
+  initReveal();
+  document.addEventListener("astro:page-load", initReveal);
+</script>

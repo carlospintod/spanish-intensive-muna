@@ -1,0 +1,76 @@
+---
+interface Props {
+  es: string;
+  en?: string;
+  variant?: "default" | "muted" | "ctx";
+  className?: string;
+}
+const { es, en, variant = "default", className = "" } = Astro.props;
+
+const esTextClass = {
+  default: "text-ink-900 leading-relaxed",
+  muted: "text-ink-700 leading-relaxed",
+  ctx: "text-sm italic text-ink-500 leading-snug",
+}[variant];
+---
+{en ? (
+  <div class={`translatable ${className}`}>
+    <div class="flex items-start gap-2">
+      <div class={`flex-1 ${esTextClass}`}>{es}</div>
+      <button
+        type="button"
+        class="en-toggle"
+        aria-expanded="false"
+        aria-label="Show English translation"
+      >EN</button>
+    </div>
+    <div class="en-text mt-1.5 hidden text-sm italic leading-snug text-ink-500">{en}</div>
+  </div>
+) : (
+  <div class={`${esTextClass} ${className}`}>{es}</div>
+)}
+
+<style>
+  .en-toggle {
+    flex-shrink: 0;
+    border-radius: 0.375rem;
+    border: 1px solid #FBEACB;
+    padding: 0 0.5rem;
+    height: 1.5rem;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #C84B31;
+    cursor: pointer;
+    user-select: none;
+    line-height: 1;
+    transition: background-color 150ms, color 150ms, border-color 150ms;
+    background: transparent;
+  }
+  .en-toggle:hover { background: #FBEDE6; }
+  .en-toggle[aria-expanded="true"] {
+    background: #C84B31;
+    color: white;
+    border-color: #C84B31;
+  }
+</style>
+
+<script>
+  function initTranslatable() {
+    document.querySelectorAll<HTMLButtonElement>(".en-toggle").forEach((btn) => {
+      if (btn.dataset.bound) return;
+      btn.dataset.bound = "true";
+      btn.addEventListener("click", () => {
+        const wrapper = btn.closest<HTMLElement>(".translatable");
+        const enText = wrapper?.querySelector<HTMLElement>(".en-text");
+        if (!enText) return;
+        const willShow = enText.classList.contains("hidden");
+        enText.classList.toggle("hidden");
+        btn.setAttribute("aria-expanded", String(willShow));
+      });
+    });
+  }
+  initTranslatable();
+  document.addEventListener("astro:page-load", initTranslatable);
+</script>

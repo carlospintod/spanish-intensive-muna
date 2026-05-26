@@ -5,10 +5,14 @@ import BaseLayout from "./BaseLayout.astro";
 import ParaTi from "../components/ParaTi.astro";
 import Objetivo from "../components/Objetivo.astro";
 import Vocabulario from "../components/Vocabulario.astro";
+import MatchingGame from "../components/MatchingGame.astro";
 import Gramatica from "../components/Gramatica.astro";
+import GapFill from "../components/GapFill.astro";
 import Dialogos from "../components/Dialogos.astro";
+import CompleteDialogue from "../components/CompleteDialogue.astro";
 import Lectura from "../components/Lectura.astro";
 import Video from "../components/Video.astro";
+import SentenceBuilder from "../components/SentenceBuilder.astro";
 import PracticaPlaceholder from "../components/PracticaPlaceholder.astro";
 import Misiones from "../components/Misiones.astro";
 import Cierre from "../components/Cierre.astro";
@@ -24,10 +28,13 @@ interface Props {
 }
 const { unit, prev, next } = Astro.props;
 const d = unit.data;
+const gapfill = d.exercises?.gapfill ?? [];
+const construir = d.exercises?.construir ?? [];
+const hasMunaLines = d.dialogos.some((dlg) => dlg.lineas.some((l) => l.hablante === "Muna"));
 ---
 <BaseLayout title={`Unidad ${d.unit} · ${d.title}`} description={d.objetivo}>
   <div class="mb-6">
-    <a href="/unidades" class="text-sm text-ink-500 no-underline hover:text-terracotta-600">← Todas las unidades</a>
+    <a href="/unidades" class="text-sm text-ink-500 no-underline hover:text-terracotta-600">← All units</a>
     <div class="mt-2 flex flex-wrap items-baseline gap-x-3 gap-y-1">
       <span class="pill">Unidad {d.unit}{d.abuelaCheckpoint && " · ★ Abuela"}</span>
     </div>
@@ -37,12 +44,23 @@ const d = unit.data;
   {d.paraTi && <ParaTi text={d.paraTi} />}
 
   <div class="space-y-6">
-    <Objetivo objetivo={d.objetivo} />
+    <Objetivo objetivo={d.objetivo} objetivoEn={d.objetivoEn} />
+
     <Vocabulario items={d.vocabulario} />
-    <Gramatica titulo={d.grammar.titulo} intro={d.grammar.intro} ejemplos={d.grammar.ejemplos} />
+    <MatchingGame items={d.vocabulario} />
+
+    <Gramatica titulo={d.grammar.titulo} intro={d.grammar.intro} introEn={d.grammar.introEn} ejemplos={d.grammar.ejemplos} />
+    {gapfill.length > 0 && <GapFill items={gapfill} />}
+
     <Dialogos dialogos={d.dialogos} />
+    {hasMunaLines && <CompleteDialogue dialogos={d.dialogos} />}
+
     <Lectura texto={d.lectura.texto} glosario={d.lectura.glosario} preguntas={d.lectura.preguntas} />
+
     <Video anchor={d.video.anchor} stretch={d.video.stretch} />
+
+    {construir.length > 0 && <SentenceBuilder items={construir} />}
+
     <PracticaPlaceholder nivel={d.practica.nivel} />
     <Misiones unit={d.unit} misiones={d.misiones} />
     <Cierre yaSabes={d.cierre.yaSabes} tocaPracticar={d.cierre.tocaPracticar} />
@@ -51,3 +69,57 @@ const d = unit.data;
 
   <UnitNav prev={prev} next={next} />
 </BaseLayout>
+
+<script>
+  // Shared Web Speech API handler for every .speak-btn on the page.
+  // Optional `data-audio` overrides TTS with a recorded file (gracefully falls back).
+  let voices: SpeechSynthesisVoice[] = [];
+  function loadVoices() {
+    if (typeof speechSynthesis === "undefined") return;
+    voices = speechSynthesis.getVoices();
+  }
+  loadVoices();
+  if (typeof speechSynthesis !== "undefined" && "onvoiceschanged" in speechSynthesis) {
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  function pickEsVoice(): SpeechSynthesisVoice | null {
+    const exact = voices.find((v) => v.lang === "es-ES");
+    if (exact) return exact;
+    const esLike = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("es-es"));
+    if (esLike) return esLike;
+    const anyEs = voices.find((v) => v.lang && v.lang.toLowerCase().startsWith("es"));
+    return anyEs ?? null;
+  }
+  function speak(text: string) {
+    try {
+      if (typeof speechSynthesis === "undefined") return;
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = "es-ES";
+      const v = pickEsVoice();
+      if (v) u.voice = v;
+      u.rate = 0.95;
+      speechSynthesis.speak(u);
+    } catch {}
+  }
+  function bindSpeak() {
+    if ((window as any).__speakBound) return;
+    (window as any).__speakBound = true;
+    document.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement | null;
+      const btn = target?.closest<HTMLElement>(".speak-btn");
+      if (!btn) return;
+      e.preventDefault();
+      e.stopPropagation();
+      const audio = btn.dataset.audio;
+      const text = btn.dataset.text ?? "";
+      if (audio) {
+        const a = new Audio(audio);
+        a.play().catch(() => speak(text));
+      } else {
+        speak(text);
+      }
+    });
+  }
+  bindSpeak();
+</script>

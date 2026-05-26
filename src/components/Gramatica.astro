@@ -1,20 +1,28 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
+import Translatable from "./Translatable.astro";
 
+interface Ejemplo { es: string; en?: string }
 interface Props {
   titulo: string;
   intro?: string;
-  ejemplos: string[];
+  introEn?: string;
+  ejemplos: Ejemplo[];
 }
-const { titulo, intro, ejemplos } = Astro.props;
+const { titulo, intro, introEn, ejemplos } = Astro.props;
 ---
 <section class="section-card">
-  <SectionHeading step={3} eyebrow="Gramática" title={titulo} />
-  {intro && <p class="mb-4 text-base leading-relaxed text-ink-900">{intro}</p>}
+  <SectionHeading eyebrow="Gramática" title={titulo} />
+  <p class="mb-4 text-sm text-ink-500">No rules to memorize. Read the examples; the pattern will surface.</p>
+  {intro && (
+    <div class="mb-5">
+      <Translatable es={intro} en={introEn} variant="default" />
+    </div>
+  )}
   <ul class="space-y-3">
     {ejemplos.map((ex) => (
-      <li class="rounded-xl bg-cream-100 px-4 py-3 text-ink-900 leading-relaxed">
-        {ex}
+      <li class="rounded-xl bg-cream-100 px-4 py-3">
+        <Translatable es={ex.es} en={ex.en} variant="default" />
       </li>
     ))}
   </ul>

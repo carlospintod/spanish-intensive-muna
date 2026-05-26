@@ -1,31 +1,31 @@
 ---
 import SectionHeading from "./SectionHeading.astro";
+import SpeakButton from "./SpeakButton.astro";
 
-interface VocabItem { termino: string; gloss: string; nota?: string }
+interface VocabItem { termino: string; gloss: string; nota?: string; audio?: string }
 interface Props { items: VocabItem[] }
 const { items } = Astro.props;
 ---
 <section class="section-card">
-  <SectionHeading step={2} eyebrow="Vocabulario" title="Las palabras de esta unidad" />
-  <p class="mb-5 text-sm text-ink-500">Toca cada tarjeta para ver el significado.</p>
+  <SectionHeading eyebrow="Vocabulario" title="Today's words" />
+  <p class="mb-5 text-sm text-ink-500">Tap a card to flip it. Tap the speaker to hear it. Then cover the English and say it out loud.</p>
 
   <ul class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
     {items.map((item) => (
-      <li>
-        <button
-          type="button"
-          class="flashcard group block h-full w-full text-left"
-          aria-label={`Tarjeta: ${item.termino}`}
-        >
+      <li class="flashcard relative" data-flipped="false">
+        <div class="absolute right-2 top-2 z-10">
+          <SpeakButton text={item.termino} audio={item.audio} size="sm" label={`Play: ${item.termino}`} />
+        </div>
+        <button type="button" class="flip-area" aria-label={`Flip card: ${item.termino}`}>
           <div class="flashcard-inner">
             <div class="flashcard-face flashcard-front">
               <span class="font-display text-xl font-semibold text-ink-900">{item.termino}</span>
-              <span class="mt-2 text-xs uppercase tracking-widest text-ink-500">tocar para ver</span>
+              <span class="mt-2 text-[10px] uppercase tracking-widest text-ink-500">tap to flip</span>
             </div>
             <div class="flashcard-face flashcard-back">
-              <span class="font-medium text-ink-900">{item.gloss}</span>
+              <span class="text-base font-normal text-ink-700">{item.gloss}</span>
               {item.nota && (
-                <span class="mt-2 text-sm italic text-ink-700">{item.nota}</span>
+                <span class="mt-1.5 text-xs leading-snug text-ink-500">{item.nota}</span>
               )}
             </div>
           </div>
@@ -40,10 +40,18 @@ const { items } = Astro.props;
     perspective: 1000px;
     min-height: 9rem;
   }
+  .flashcard .flip-area {
+    display: block;
+    width: 100%;
+    min-height: 9rem;
+    background: transparent;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+  }
   .flashcard-inner {
     position: relative;
     width: 100%;
-    height: 100%;
     min-height: 9rem;
     transition: transform 0.5s cubic-bezier(0.2, 0.8, 0.2, 1);
     transform-style: preserve-3d;
@@ -63,7 +71,6 @@ const { items } = Astro.props;
     align-items: flex-start;
     justify-content: center;
     box-shadow: 0 6px 24px -8px rgba(168, 80, 50, 0.18);
-    ring: 1px solid;
   }
   .flashcard-front {
     background: #FFFBF4;
@@ -79,10 +86,11 @@ const { items } = Astro.props;
 
 <script>
   function initFlashcards() {
-    document.querySelectorAll<HTMLButtonElement>(".flashcard").forEach((card) => {
+    document.querySelectorAll<HTMLElement>(".flashcard").forEach((card) => {
       if (card.dataset.bound) return;
       card.dataset.bound = "true";
-      card.addEventListener("click", () => {
+      const flip = card.querySelector<HTMLButtonElement>(".flip-area");
+      flip?.addEventListener("click", () => {
         const flipped = card.dataset.flipped === "true";
         card.dataset.flipped = flipped ? "false" : "true";
       });

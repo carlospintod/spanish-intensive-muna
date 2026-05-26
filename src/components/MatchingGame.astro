@@ -1,0 +1,170 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface VocabItem { termino: string; gloss: string }
+interface Props { items: VocabItem[] }
+const { items } = Astro.props;
+
+// Server-side initial shuffle (independent per column). JS reshuffles on Reset.
+function shuffle<T>(arr: T[]): T[] {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+const left = shuffle(items.map((it, i) => ({ ...it, pid: i })));
+const right = shuffle(items.map((it, i) => ({ ...it, pid: i })));
+---
+<section class="section-card" data-matching-root>
+  <SectionHeading eyebrow="Empareja" title="Quick match: words to meanings" />
+  <p class="mb-4 text-sm text-ink-500">Tap a Spanish word, then its English meaning. Wrong pairs reset automatically.</p>
+
+  <div class="grid grid-cols-2 gap-3">
+    <ul class="space-y-2" data-match-col="es">
+      {left.map((it) => (
+        <li>
+          <button
+            type="button"
+            class="match-tile w-full rounded-xl border border-cream-200 bg-cream-50 px-3 py-3 text-left text-ink-900 transition"
+            data-side="es"
+            data-pair-id={it.pid}
+          >
+            {it.termino}
+          </button>
+        </li>
+      ))}
+    </ul>
+    <ul class="space-y-2" data-match-col="en">
+      {right.map((it) => (
+        <li>
+          <button
+            type="button"
+            class="match-tile w-full rounded-xl border border-cream-200 bg-white px-3 py-3 text-left text-ink-700 transition"
+            data-side="en"
+            data-pair-id={it.pid}
+          >
+            {it.gloss}
+          </button>
+        </li>
+      ))}
+    </ul>
+  </div>
+
+  <p class="match-done mt-4 hidden rounded-xl bg-olive-500/10 px-4 py-3 text-olive-600">
+    All matched. ✨ Nice retrieval.
+  </p>
+
+  <button
+    type="button"
+    class="match-reset mt-4 inline-flex items-center gap-2 rounded-lg border border-cream-200 px-3 py-2 text-sm font-medium text-ink-700 hover:bg-cream-100"
+  >
+    ↻ Shuffle and try again
+  </button>
+</section>
+
+<style>
+  .match-tile[data-state="selected"] {
+    background-color: #FBEDE6;
+    border-color: #D77A52;
+  }
+  .match-tile[data-state="matched"] {
+    background-color: #E6F0DC;
+    border-color: #7A8450;
+    color: #5F6840;
+    opacity: 0.7;
+    cursor: default;
+  }
+  .match-tile[data-state="wrong"] {
+    background-color: #FBEDE6;
+    border-color: #C84B31;
+    color: #7E2B1A;
+  }
+  .match-tile[data-matched="1"] {
+    pointer-events: none;
+  }
+</style>
+
+<script>
+  function shuffleNodes(container: Element) {
+    const items = Array.from(container.children);
+    for (let i = items.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      container.insertBefore(items[j], items[i]);
+    }
+  }
+
+  function initMatching(root: HTMLElement) {
+    if (root.dataset.bound) return;
+    root.dataset.bound = "true";
+    let selected: HTMLElement | null = null;
+
+    const allTiles = () => Array.from(root.querySelectorAll<HTMLElement>(".match-tile"));
+    const done = root.querySelector<HTMLElement>(".match-done");
+
+    function reset() {
+      allTiles().forEach((t) => {
+        t.dataset.matched = "";
+        t.dataset.state = "";
+      });
+      done?.classList.add("hidden");
+      selected = null;
+      root.querySelectorAll<HTMLElement>("[data-match-col]").forEach(shuffleNodes);
+    }
+
+    root.addEventListener("click", (e) => {
+      const target = e.target as HTMLElement;
+      const tile = target.closest<HTMLElement>(".match-tile");
+      const reset_btn = target.closest<HTMLElement>(".match-reset");
+      if (reset_btn) {
+        reset();
+        return;
+      }
+      if (!tile || tile.dataset.matched === "1") return;
+
+      if (selected === tile) {
+        tile.dataset.state = "";
+        selected = null;
+        return;
+      }
+      if (!selected) {
+        selected = tile;
+        tile.dataset.state = "selected";
+        return;
+      }
+      if (selected.dataset.side === tile.dataset.side) {
+        selected.dataset.state = "";
+        selected = tile;
+        tile.dataset.state = "selected";
+        return;
+      }
+      if (selected.dataset.pairId === tile.dataset.pairId) {
+        selected.dataset.matched = "1";
+        tile.dataset.matched = "1";
+        selected.dataset.state = "matched";
+        tile.dataset.state = "matched";
+        selected = null;
+        const all = allTiles();
+        if (all.every((t) => t.dataset.matched === "1")) {
+          done?.classList.remove("hidden");
+        }
+      } else {
+        const a = selected, b = tile;
+        a.dataset.state = "wrong";
+        b.dataset.state = "wrong";
+        selected = null;
+        setTimeout(() => {
+          if (a.dataset.matched !== "1") a.dataset.state = "";
+          if (b.dataset.matched !== "1") b.dataset.state = "";
+        }, 600);
+      }
+    });
+  }
+
+  function initAll() {
+    document.querySelectorAll<HTMLElement>("[data-matching-root]").forEach(initMatching);
+  }
+  initAll();
+  document.addEventListener("astro:page-load", initAll);
+</script>

@@ -1,0 +1,118 @@
+---
+import SectionHeading from "./SectionHeading.astro";
+
+interface Item { frase: string; fraseEn?: string; respuesta: string; opciones: string[] }
+interface Props { items: Item[] }
+const { items } = Astro.props;
+
+function splitAroundBlank(frase: string): [string, string] {
+  const i = frase.indexOf("___");
+  if (i < 0) return [frase, ""];
+  return [frase.slice(0, i), frase.slice(i + 3)];
+}
+---
+<section class="section-card">
+  <SectionHeading eyebrow="Rellena el hueco" title="Fill the blank" />
+  <p class="mb-5 text-sm text-ink-500">Tap the option that fits. Wrong answers reset — try again. Tap <strong>EN</strong> if you need the meaning.</p>
+
+  <ol class="space-y-5">
+    {items.map((item, idx) => {
+      const [pre, post] = splitAroundBlank(item.frase);
+      return (
+        <li class="gapfill-item rounded-2xl border border-cream-200 bg-white p-4" data-answer={item.respuesta} data-idx={idx}>
+          <div class="flex items-start gap-2">
+            <p class="flex-1 text-lg leading-relaxed text-ink-900">
+              <span>{pre}</span>
+              <span class="gapfill-slot mx-1 inline-block min-w-[5ch] border-b-2 border-terracotta-400 px-2 pb-0.5 text-center font-medium text-terracotta-700"></span>
+              <span>{post}</span>
+            </p>
+            {item.fraseEn && (
+              <button
+                type="button"
+                class="en-toggle gapfill-en-toggle"
+                aria-expanded="false"
+                aria-label="Show English translation"
+              >EN</button>
+            )}
+          </div>
+          {item.fraseEn && (
+            <p class="gapfill-en mt-1 hidden text-sm italic text-ink-500">{item.fraseEn}</p>
+          )}
+          <div class="mt-3 flex flex-wrap gap-2">
+            {item.opciones.map((opt) => (
+              <button
+                type="button"
+                class="gapfill-opt rounded-lg border border-cream-200 bg-cream-50 px-3 py-2 text-ink-900 hover:bg-cream-100"
+                data-opt={opt}
+              >
+                {opt}
+              </button>
+            ))}
+          </div>
+          <p class="gapfill-feedback mt-3 hidden text-sm font-medium"></p>
+        </li>
+      );
+    })}
+  </ol>
+</section>
+
+<style>
+  .gapfill-opt[data-state="correct"] {
+    background-color: #E6F0DC;
+    border-color: #7A8450;
+    color: #5F6840;
+    cursor: default;
+  }
+  .gapfill-opt[data-state="wrong"] {
+    background-color: #FBEDE6;
+    border-color: #C84B31;
+    color: #7E2B1A;
+  }
+</style>
+
+<script>
+  function initGap() {
+    document.querySelectorAll<HTMLElement>(".gapfill-item").forEach((item) => {
+      if (item.dataset.bound) return;
+      item.dataset.bound = "true";
+      const answer = item.dataset.answer!;
+      const slot = item.querySelector<HTMLElement>(".gapfill-slot")!;
+      const feedback = item.querySelector<HTMLElement>(".gapfill-feedback")!;
+      const opts = item.querySelectorAll<HTMLButtonElement>(".gapfill-opt");
+      const enToggle = item.querySelector<HTMLButtonElement>(".gapfill-en-toggle");
+      const enText = item.querySelector<HTMLElement>(".gapfill-en");
+
+      enToggle?.addEventListener("click", () => {
+        if (!enText) return;
+        const willShow = enText.classList.contains("hidden");
+        enText.classList.toggle("hidden");
+        enToggle.setAttribute("aria-expanded", String(willShow));
+      });
+
+      opts.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const chosen = btn.dataset.opt!;
+          slot.textContent = chosen;
+          if (chosen === answer) {
+            opts.forEach((o) => { o.disabled = true; });
+            btn.dataset.state = "correct";
+            feedback.classList.remove("hidden");
+            feedback.textContent = "¡Bien! ✨";
+            feedback.style.color = "#5F6840";
+          } else {
+            btn.dataset.state = "wrong";
+            feedback.classList.remove("hidden");
+            feedback.textContent = "Almost — try another.";
+            feedback.style.color = "#A93A23";
+            setTimeout(() => {
+              btn.dataset.state = "";
+              slot.textContent = "";
+            }, 700);
+          }
+        });
+      });
+    });
+  }
+  initGap();
+  document.addEventListener("astro:page-load", initGap);
+</script>
